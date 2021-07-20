@@ -4,9 +4,7 @@ import string
 
 _digits_as_bytes = tuple(ord(x) for x in string.digits)
 
-BCodeType = Union[
-    int, bytes, str, Dict[Union[str, bytes], "BCodeType"], Iterable["BCodeType"]
-]
+BCodeType = Union[int, bytes, str, Dict[Union[str, bytes], "BCodeType"], Iterable["BCodeType"]]
 
 
 def _decode_int(data: bytes) -> BCodeType:

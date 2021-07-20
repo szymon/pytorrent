@@ -9,6 +9,8 @@ from random import randrange
 import hashlib
 import urllib
 import urllib.parse
+import struct
+import socket
 
 import aiohttp
 
@@ -80,19 +82,31 @@ class TrackerResponse:
 
     @property
     def peers(self):
-        return self._peers
+        if type(self._peers) == bytes:
+            data = [self._peers[i : i + 6] for i in range(0, len(self._peers), 6)]
+
+            def _decode_port(bts):
+                return struct.unpack(">H", bts)[0]
+
+            return [(socket.inet_ntoa(d[:4]), _decode_port(d[4:])) for d in data]
+
+    @property
+    def interval(self):
+        if self._interval:
+            return self._interval
 
 
 class TrackerConnectionProxy:
-    def __init__(self, client, torrent):
+    def __init__(self, client, torrent, peer_id):
         self.client = client
         self.torrent = torrent
+        self.peer_id = peer_id
 
     async def __aenter__(self) -> TrackerResponse:
 
         params = {
             "info_hash": self.torrent.info_hash,
-            "peer_id": "-PT9000-t3qn65w1qoni",
+            "peer_id": self.peer_id,
             "port": 51413,
             "uploaded": 0,
             "downloaded": 0,
@@ -118,10 +132,11 @@ class Tracker:
     def __init__(self, torrent, client=None):
         self.torrent = torrent
         self._client = client or aiohttp.ClientSession()
+        self.peer_id = "-PT9000-t3qn65w1qoni"
 
     def connect(self) -> TrackerConnectionProxy:
 
-        return TrackerConnectionProxy(self._client, self.torrent)
+        return TrackerConnectionProxy(self._client, self.torrent, self.peer_id)
 
 
 class Torrent:

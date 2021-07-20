@@ -3,16 +3,12 @@ import pytest
 from pytorrent.bcode import bencode, bdecode
 
 
-@pytest.mark.parametrize(
-    "test_input,expected", [(0, b"i0e"), (1, b"i1e"), (-1, b"i-1e")]
-)
+@pytest.mark.parametrize("test_input,expected", [(0, b"i0e"), (1, b"i1e"), (-1, b"i-1e")])
 def test_encode_int(test_input, expected):
     assert bencode(test_input) == expected
 
 
-@pytest.mark.parametrize(
-    "test_input,expected", [("spam", b"4:spam"), (b"spam", b"4:spam")]
-)
+@pytest.mark.parametrize("test_input,expected", [("spam", b"4:spam"), (b"spam", b"4:spam")])
 def test_encode_string(test_input, expected):
     assert bencode(test_input) == expected
 
@@ -94,9 +90,7 @@ def test_decode_complex():
     [
         (
             b"d14:failure reason63:Requested download is not authorized for use with this tracker.e",
-            {
-                b"failure reason": b"Requested download is not authorized for use with this tracker."
-            },
+            {b"failure reason": b"Requested download is not authorized for use with this tracker."},
         ),
     ],
 )
